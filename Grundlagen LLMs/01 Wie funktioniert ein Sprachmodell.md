@@ -276,7 +276,7 @@ Das ist der ganze Trick. Und die Tatsache, dass diese einfache Idee — hochskal
 
 ---
 
-*Nächstes Tutorial: **00-02 — Wie Diffusion-Modelle funktionieren** (Bildgenerierung mit Google Nano Banana Pro, GPT Image 1.5, Midjourney & Co.)*
+*Nächstes Tutorial: **02 Wie funktioniert die Bildgenerierung mit KI** (Bildgenerierung mit Google Nano Banana Pro, GPT Image 1.5, Midjourney & Co.)*
 
 ---
 
