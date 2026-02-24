@@ -404,4 +404,3 @@ Wenn Sie ein langes Gespräch mit ChatGPT führen, wird irgendwann der Kontext v
 
 ---
 
-> **Quelle & Inspiration:** Basierend auf dem Artikel „Building an LLM From Scratch" von Micheal Lanham (2026), adaptiert und erweitert für den deutschsprachigen Bankensektor.
