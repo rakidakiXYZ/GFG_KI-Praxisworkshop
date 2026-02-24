@@ -17,6 +17,9 @@ Keine Sorge — Sie brauchen dafür kein Informatik-Studium. In diesem Tutorial 
 - Welche 8 Bausteine ein LLM ausmachen
 - Wie das berühmte „Attention"-Prinzip funktioniert
 - Wie ein Modell vom totalen Unsinn zu sinnvollen Texten kommt
+- Was Tokens wirklich kosten — und warum Deutsch „teurer" ist als Englisch
+- Was Temperature, Top-K und Top-P bedeuten — die Kreativitätsregler
+- Was das Kontextfenster ist und wie groß es bei aktuellen Modellen ist
 
 ---
 
@@ -98,6 +101,22 @@ Warum nicht einfach jedes Wort = eine Nummer? Weil es viel zu viele verschiedene
 
 > **Für die Praxis:** Wenn Sie in ChatGPT einen langen Text eingeben und irgendwann die Meldung kommt, der Text sei „zu lang", liegt das daran, dass zu viele Tokens erzeugt wurden. Jedes Modell hat ein **Token-Limit** — dazu später mehr.
 
+#### Tokens in der Praxis: Warum das wichtig ist
+
+Tokens sind nicht nur ein technisches Detail — sie sind die **Abrechnungseinheit** der KI-Welt. Jeder API-Aufruf an ChatGPT, Claude oder Gemini wird nach Tokens berechnet. Je mehr Tokens Ihre Eingabe und die Antwort haben, desto mehr kostet es.
+
+**Faustregel:** Ein Token entspricht etwa ¾ eines englischen Wortes. Der Satz „The customer wants a loan" hat 6 Wörter, aber nur 6 Tokens.
+
+Aber Achtung — **Deutsch ist „teurer" als Englisch!** Deutsche Wörter sind im Durchschnitt länger und zusammengesetzter. Der Tokenizer muss sie in mehr Teile zerlegen:
+
+| Sprache | Text | Tokens |
+|---------|------|--------|
+| Englisch | "The customer wants a loan" | ~6 Tokens |
+| Deutsch | „Der Kunde möchte einen Kredit" | ~8-9 Tokens |
+| Deutsch | „Kreditrückzahlungsvereinbarung" | ~6-8 Tokens (ein Wort!) |
+
+Das bedeutet: Dieselbe Information auf Deutsch verbraucht **20-40% mehr Tokens** als auf Englisch. Bei großen Textmengen macht das einen spürbaren Unterschied — sowohl bei den Kosten als auch beim verfügbaren Platz im Kontextfenster (dazu gleich mehr).
+
 ### Baustein 3: Embeddings — Jedes Token bekommt eine Adresse
 
 Wir haben jetzt Tokens als Zahlen. Aber die Zahl 42 sagt dem Modell nichts über die **Bedeutung** des Wortes. Also wandeln wir jede Token-ID in einen **Vektor** um — eine Liste von Zahlen, die die Bedeutung des Tokens beschreibt.
@@ -109,6 +128,24 @@ Stellen Sie sich eine riesige Landkarte vor. Jedes Wort bekommt **Koordinaten** 
 - „Zinsen" und „Rendite" → im selben Viertel
 
 Diese „Bedeutungs-Landkarte" wird während des Trainings gelernt. Am Anfang sind die Koordinaten zufällig — aber nach dem Training stehen bedeutungsähnliche Wörter tatsächlich beieinander. Das Modell hat aus dem Kontext gelernt, dass „Kredit" und „Darlehen" in ähnlichen Sätzen vorkommen.
+
+#### Vektoren und Vektorisierung: Was steckt dahinter?
+
+Das Wort „Vektor" klingt komplizierter als es ist. Ein Vektor ist einfach **eine Liste von Zahlen**. Stellen Sie sich GPS-Koordinaten vor: Zwei Zahlen (Breitengrad, Längengrad) beschreiben einen Ort auf der Erde. Ein Embedding-Vektor funktioniert genauso — nur mit **hunderten oder tausenden** Zahlen statt nur zwei, weil er viel mehr Bedeutungsdimensionen erfassen muss.
+
+```
+Vektor für „Kredit":    [0.82, -0.15, 0.43, 0.67, -0.91, ... ]  (768 Zahlen)
+Vektor für „Darlehen":  [0.79, -0.18, 0.41, 0.70, -0.88, ... ]  (sehr ähnlich!)
+Vektor für „Banane":    [-0.23, 0.55, -0.67, 0.12, 0.34, ... ]  (ganz anders)
+```
+
+Wie misst das Modell, ob zwei Wörter ähnlich sind? Mit der sogenannten **Cosine Similarity** (Kosinus-Ähnlichkeit). Vereinfacht: Es berechnet den „Winkel" zwischen zwei Vektoren. Je kleiner der Winkel, desto ähnlicher die Bedeutung:
+
+- „Kredit" ↔ „Darlehen" → Ähnlichkeit: **0,95** (fast identisch)
+- „Kredit" ↔ „Zinsen" → Ähnlichkeit: **0,72** (verwandt)
+- „Kredit" ↔ „Banane" → Ähnlichkeit: **0,08** (kein Zusammenhang)
+
+> **Warum ist das wichtig?** Diese Vektorisierung ist der Grund, warum KI-Modelle auch mit Wörtern umgehen können, die sie noch nie zusammen gesehen haben. Wenn ein Modell weiß, was „Kredit" und „Baufinanzierung" einzeln bedeuten, kann es aus der Nähe ihrer Vektoren schließen, dass sie zusammengehören.
 
 ### Baustein 4: Positional Encoding — Seitenzahlen für Wörter
 
@@ -260,6 +297,90 @@ Das ist der ganze Trick. Und die Tatsache, dass diese einfache Idee — hochskal
 
 ---
 
+## Temperature, Top-K und Top-P: Die Kreativitätsregler
+
+Erinnern Sie sich an Baustein 8? Das Modell berechnet für jedes mögliche nächste Wort eine Wahrscheinlichkeit. Aber **wie genau** es aus diesen Wahrscheinlichkeiten ein Wort auswählt — das können Sie beeinflussen. Dafür gibt es drei „Regler":
+
+### Temperature — Der Kreativitätsschalter
+
+Die Temperature (Temperatur) bestimmt, wie „mutig" das Modell bei der Wortwahl ist.
+
+| Temperature | Verhalten | Bank-Beispiel |
+|-------------|-----------|---------------|
+| **Niedrig (0,0 – 0,3)** | Wählt fast immer das wahrscheinlichste Wort. Vorhersagbar, präzise, sachlich. | Formelle Kundenanschreiben, Vertragstexte, Compliance-Antworten |
+| **Mittel (0,5 – 0,7)** | Gute Balance zwischen Präzision und Abwechslung. | E-Mails, Zusammenfassungen, Alltagsaufgaben |
+| **Hoch (0,8 – 1,5)** | Wählt auch unwahrscheinlichere Wörter. Kreativ, überraschend, manchmal ungenau. | Brainstorming, Marketing-Texte, kreative Ideen |
+
+**Anschaulich erklärt:** Stellen Sie sich vor, Ihr Team soll ein Motto für den nächsten Kundentag finden.
+
+- **Temperature 0:** Der Vorstandsvorsitzende sagt das Naheliegendste: „Gemeinsam in die Zukunft." Sicher, aber vorhersagbar.
+- **Temperature 0,7:** Ein kreativer Kollege schlägt vor: „Banking mit Herz und Verstand." Origineller, aber noch sinnvoll.
+- **Temperature 1,5:** Der Praktikant ruft: „Flamingos im Tresor!" Überraschend, aber… nicht ganz brauchbar.
+
+### Top-K — Nur die besten K Kandidaten
+
+Top-K begrenzt die Auswahl auf die **K wahrscheinlichsten Wörter**. Wenn Top-K = 10, schaut das Modell nur die 10 besten Vorschläge an und ignoriert alle anderen.
+
+- **Top-K = 1:** Immer nur das wahrscheinlichste Wort → sehr monoton
+- **Top-K = 40:** Die 40 besten Kandidaten → ausgewogene Vielfalt
+- **Top-K = 100:** Große Auswahl → mehr Variation, aber auch mehr Risiko für seltsame Wörter
+
+### Top-P (Nucleus Sampling) — Die Wahrscheinlichkeitsschwelle
+
+Top-P funktioniert etwas anders: Es nimmt so viele Wörter in die Auswahl auf, bis ihre **aufsummierten Wahrscheinlichkeiten** einen bestimmten Prozentsatz erreichen.
+
+- **Top-P = 0,1:** Nur Wörter, die zusammen 10% Wahrscheinlichkeit ausmachen → sehr fokussiert
+- **Top-P = 0,9:** Wörter bis 90% kumulative Wahrscheinlichkeit → breite Auswahl
+
+**Praxis-Tipp:** In den meisten Fällen reicht es, nur die **Temperature** anzupassen. Top-K und Top-P sind Feintuning für Fortgeschrittene. Für Alltagsaufgaben bei der Bank ist eine Temperature von **0,3–0,5** ein guter Startpunkt — sachlich genug für Kundenkorrespondenz, aber nicht roboterhaft.
+
+> **Gut zu wissen:** Nicht alle Modelle bieten alle drei Regler an. Bei Gemini 3 sollte man die Temperature am besten auf dem Standardwert (1,0) belassen — Google hat das Modell speziell dafür optimiert.
+
+---
+
+## Kontext und Kontextfenster: Das Gedächtnis des Modells
+
+Eine der wichtigsten Fragen bei der Arbeit mit LLMs: **Wie viel kann das Modell sich „merken"?**
+
+### Was ist der Kontext?
+
+Der Kontext ist alles, was das Modell bei einer Anfrage „sehen" kann:
+
+- Ihre **System-Anweisungen** (z.B. „Du bist ein freundlicher Bankberater")
+- Die **bisherige Konversation** (alle vorherigen Fragen und Antworten)
+- Ihre **aktuelle Frage**
+- Eventuell **hochgeladene Dokumente**
+
+All das wird zusammen in das Modell gefüttert — und es hat dafür nur ein begrenztes Fenster: das **Kontextfenster** (Context Window).
+
+### Wie groß ist das Kontextfenster?
+
+Das Kontextfenster wird in **Tokens** gemessen. Hier ein Vergleich der aktuellen Top-Modelle (Stand: Februar 2026):
+
+| Modell | Kontextfenster | Entspricht ca. | Max. Ausgabe |
+|--------|---------------|-----------------|--------------|
+| **GPT-5.2** (OpenAI) | 400.000 Tokens | ~300.000 Wörter / ~600 Seiten | 128.000 Tokens |
+| **Claude Opus 4.6** (Anthropic) | 200.000 Tokens (Standard) / 1.000.000 Tokens (Beta) | ~150.000–750.000 Wörter / ~300–1.500 Seiten | 128.000 Tokens |
+| **Gemini 3 Pro** (Google) | 1.048.576 Tokens (~1 Mio.) | ~750.000 Wörter / ~1.500 Seiten | 65.536 Tokens |
+
+> **Zum Vergleich:** Ein typischer Roman hat etwa 80.000 Wörter. GPT-5.2 kann also **fast 4 Romane** gleichzeitig im Kontext halten. Gemini 3 Pro schafft sogar knapp **10 Romane**.
+
+### Warum ist das Kontextfenster begrenzt?
+
+Jedes Token im Kontext kostet:
+
+1. **Rechenleistung:** Das Attention-System muss jedes Token mit jedem anderen vergleichen. Doppelt so viele Tokens = vierfacher Rechenaufwand.
+2. **Geld:** Sie zahlen pro Token — sowohl für die Eingabe als auch für die Ausgabe.
+3. **Qualität:** Bei sehr langen Kontexten kann die „Aufmerksamkeit" des Modells nachlassen. Informationen in der Mitte eines sehr langen Texts werden manchmal übersehen (das sogenannte „Lost in the Middle"-Problem).
+
+### Was passiert, wenn der Kontext voll ist?
+
+Wenn Sie ein langes Gespräch mit ChatGPT führen, wird irgendwann der Kontext voll. Das Modell muss dann **ältere Nachrichten vergessen** — es „schiebt" das Fenster weiter. Das erklärt, warum der Chatbot manchmal Dinge „vergisst", die Sie ihm Stunden vorher gesagt haben.
+
+> **Praxis-Tipp für den Bankalltag:** Wenn Sie ein langes Dokument analysieren lassen wollen (z.B. einen 50-seitigen Jahresbericht), prüfen Sie vorher, ob es ins Kontextfenster passt. Ein 50-seitiger Bericht hat ca. 25.000–35.000 Wörter ≈ 35.000–50.000 Tokens — das passt locker in jedes aktuelle Modell. Aber wenn Sie 10 solcher Berichte gleichzeitig vergleichen wollen, wird es bei kleineren Modellen eng.
+
+---
+
 ## Glossar
 
 | Begriff | Erklärung |
@@ -273,10 +394,14 @@ Das ist der ganze Trick. Und die Tatsache, dass diese einfache Idee — hochskal
 | **Prompt** | Ihre Eingabe an das Modell — der Text, auf den es reagiert |
 | **Training** | Der Prozess, bei dem das Modell durch millionenfaches „Wort-Raten" lernt, Muster in Sprache zu erkennen |
 | **Loss** | Ein Fehlerwert, der angibt, wie weit die Vorhersage des Modells von der richtigen Antwort entfernt war |
+| **Vektor** | Eine Liste von Zahlen, die die Bedeutung eines Worts im mehrdimensionalen Raum beschreibt |
+| **Cosine Similarity** | Ein Maß für die Ähnlichkeit zweier Vektoren — je näher an 1, desto ähnlicher die Bedeutung |
+| **Temperature** | Regler für die „Kreativität" des Modells bei der Wortwahl (niedrig = präzise, hoch = kreativ) |
+| **Top-K** | Begrenzt die Wortwahl auf die K wahrscheinlichsten Kandidaten |
+| **Top-P** | Begrenzt die Wortwahl auf Kandidaten, deren Wahrscheinlichkeiten zusammen P% erreichen |
+| **Kontextfenster** | Die maximale Menge an Text (in Tokens), die das Modell gleichzeitig verarbeiten kann |
+
 
 ---
 
-*Nächstes Tutorial: **02 Wie funktioniert die Bildgenerierung mit KI** (Bildgenerierung mit Google Nano Banana Pro, GPT Image 1.5, Midjourney & Co.)*
-
----
-
+> **Quelle & Inspiration:** Basierend auf dem Artikel „Building an LLM From Scratch" von Micheal Lanham (2026), adaptiert und erweitert für den deutschsprachigen Bankensektor.
