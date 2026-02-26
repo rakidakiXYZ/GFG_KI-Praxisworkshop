@@ -6,7 +6,7 @@
 
 ## Warum dieses Tutorial?
 
-In Tutorial 01-01 haben Sie die 6 Bausteine eines guten Prompts kennengelernt: Rolle, Kontext, Aufgabe, Regeln, Beispiele, Format. In Tutorial 01-03 haben Sie gelernt, wie Sie Halluzinationen erkennen und Bias reduzieren. Sie können jetzt klare Aufträge formulieren und die Qualität der Ergebnisse einschätzen.
+In den bisherigen Tutorials haben Sie die Grundlagen gelegt: In Tutorial 01-01 die 6 Bausteine eines guten Prompts (Rolle, Kontext, Aufgabe, Regeln, Beispiele, Format), in Tutorial 01-03 das Erkennen von Halluzinationen und Bias. Sie können jetzt klare Aufträge formulieren und die Qualität der Ergebnisse einschätzen.
 
 Aber stellen Sie sich vor: Ihr neuer Kollege hat inzwischen verstanden, was Sie von ihm wollen. Er liefert solide Ergebnisse. Doch bei komplexen Aufgaben — eine Kreditrisikoanalyse mit 15 Faktoren, ein Vergleich dreier Anlageprodukte, eine Zusammenfassung eines 40-seitigen Regulierungsdokuments — gerät er ins Straucheln. Nicht weil er dumm ist, sondern weil er versucht, alles auf einmal zu lösen, statt systematisch vorzugehen.
 
@@ -141,7 +141,11 @@ Few-Shot CoT ist stärker als Zero-Shot, weil die KI nicht nur *dass* sie Schrit
 
 ### Variante 3: Internes CoT — Reasoning-Modelle
 
-Die neuesten Modelle — OpenAI o3/o4-mini, Googles Gemini 2.5 Flash Thinking, DeepSeek R1 — haben Chain-of-Thought bereits eingebaut. Sie „denken" intern nach, bevor sie antworten, ohne dass Sie danach fragen müssen.
+Bevor wir hier eintauchen, ein kurzer Exkurs: **Was sind „Reasoning-Modelle"?**
+
+Normale KI-Modelle wie ChatGPT (GPT-4o) oder Claude antworten sofort — wie ein Kollege, der aus dem Bauch heraus antwortet. **Reasoning-Modelle** sind eine neue Generation, die vor der Antwort *intern nachdenkt* — wie ein Kollege, der erst 30 Sekunden schweigt, sich Notizen macht und dann eine durchdachte Antwort gibt. Sie erkennen sie daran, dass die Antwort etwas länger dauert, aber oft präziser ist.
+
+Beispiele: OpenAIs o3 und o4-mini, Googles Gemini 2.5 Flash Thinking, das Open-Source-Modell DeepSeek R1. Sie müssen sich die Namen nicht merken — wichtig ist nur: **Diese Modelle machen Chain-of-Thought automatisch, ohne dass Sie danach fragen.**
 
 **Wichtige Erkenntnis aus der Wharton-Studie (Mollick et al., Juni 2025):**
 
@@ -218,7 +222,7 @@ Ein System Prompt ist die Lösung: Eine **dauerhafte Grundkonfiguration**, die b
 |---|---|---|
 | **ChatGPT** | Custom Instructions → „How would you like ChatGPT to respond?" | Gilt für alle Chats, oder pro GPT konfigurierbar |
 | **Claude** | Projects → System Prompt Feld | Pro Projekt einstellbar |
-| **Gemini** | Google AI Studio → System Instructions | Im normalen Chat nicht direkt zugänglich |
+| **Gemini** | Google AI Studio → System Instructions | Im normalen Gemini-Chat nicht direkt zugänglich. **Tipp:** Google AI Studio ist kostenlos unter [aistudio.google.com](https://aistudio.google.com) erreichbar |
 | **API-Nutzung** | `system`-Parameter in der Anfrage | Volle Kontrolle für Entwickler |
 
 ### Die 5 Elemente eines guten System Prompts
@@ -306,6 +310,8 @@ Ein häufiges Missverständnis: Der System Prompt ist kein unüberwindbarer Befe
 │  Mittel:              User Prompt (Ihre aktuelle Frage)         │
 │           ↓                                                     │
 │  Schwächste:          Kontext aus früheren Nachrichten           │
+│                       (= was Sie vorher im Chat geschrieben     │
+│                        haben — das „Gedächtnis" des Gesprächs)  │
 │                                                                 │
 │  ⚠️ Aber: Ein geschickt formulierter User Prompt kann den       │
 │     System Prompt überstimmen — das nennt sich „Jailbreaking"   │
@@ -414,6 +420,8 @@ und finde das nicht akzeptabel."
 ### XML-Tags: Die Profi-Variante
 
 XML-Tags sind besonders bei Claude hocheffektiv, funktionieren aber bei allen modernen Modellen. Ihr Vorteil: Sie sind eindeutig — es gibt ein öffnendes und ein schließendes Tag, und alles dazwischen gehört zusammen.
+
+**Keine Angst — das ist kein Programmieren!** Sie tippen XML-Tags einfach in das ganz normale Chatfenster von ChatGPT, Claude oder Gemini ein, genau wie jeden anderen Text auch. Die spitzen Klammern `< >` sind nur Markierungen — wie Textmarker in verschiedenen Farben, nur eben für die KI.
 
 ```
 <anweisung>
@@ -643,18 +651,21 @@ Self-Consistency (Wang et al., 2023) ist eine elegante Erweiterung von Chain-of-
 Ein Kunde möchte 200.000 € über 20 Jahre finanzieren. 
 Der Zinssatz beträgt 3,5% p.a., die anfängliche Tilgung 2%.
 
-Berechne die monatliche Rate auf drei verschiedene Arten:
-1. Über die Annuitätenformel
-2. Über die Zerlegung in Zins- und Tilgungsanteil
-3. Über eine Plausibilitätsprüfung (Schätzung)
+Berechne die monatliche Rate und prüfe dein Ergebnis mit 
+einer Gegenprobe:
+1. Berechne die monatliche Rate Schritt für Schritt
+2. Rechne rückwärts: Wenn der Kunde diese Rate 20 Jahre 
+   zahlt — kommt wieder 200.000 € heraus?
+3. Plausibilitätscheck: Liegt die Rate im üblichen Bereich 
+   für diese Kreditsumme?
 
-Vergleiche die drei Ergebnisse. Wenn sie nicht übereinstimmen,
-erkläre die Abweichung.
+Wenn Hin- und Rückrechnung nicht übereinstimmen, erkläre 
+die Abweichung.
 ```
 
 **Warum das funktioniert:**
-- Wenn alle drei Wege zum gleichen Ergebnis kommen → hohes Vertrauen
-- Wenn sie abweichen → die Begründung zeigt, wo der Fehler liegt
+- Vorwärts- UND Rückwärtsrechnung → Fehler fallen sofort auf
+- Die Plausibilitätsprüfung fängt grobe Ausreißer ab
 - Das Modell „korrigiert sich selbst", indem es Inkonsistenzen erkennt
 
 > **Volksbank-Analogie:** In der Wirtschaftsprüfung gibt es das Vier-Augen-Prinzip: Zwei Personen prüfen denselben Vorgang unabhängig voneinander. Stimmen ihre Ergebnisse überein, ist die Fehlerwahrscheinlichkeit minimal. Self-Consistency ist das Vier-Augen-Prinzip für KI — nur dass beide „Augen" im selben Modell sitzen.
@@ -933,6 +944,24 @@ Aus einer der Quellen dieses Tutorials stammt das KERNEL-Framework — eine einf
 
 ---
 
+## 🚀 Starten Sie hier — Ihr erster Schritt am Montag
+
+Acht Techniken sind viel auf einmal. Deshalb hier die **eine Sache**, die Sie sofort mitnehmen können:
+
+> **Ab jetzt: Fügen Sie zu jeder komplexen Frage an die KI den Satz hinzu: „Denke Schritt für Schritt und zeige deinen Lösungsweg."**
+>
+> Das dauert 3 Sekunden, kostet nichts extra, und Sie werden sofort merken: Die Antworten werden nachvollziehbarer — und Fehler fallen Ihnen schneller auf.
+
+Wenn Sie das eine Woche lang machen, werden Sie automatisch anfangen, auch die anderen Techniken auszuprobieren. Delimiter, wenn ein Prompt unübersichtlich wird. Constraints, wenn die Antwort zu generisch ist. Reverse Prompting, wenn Sie merken: „Ich weiß eigentlich noch gar nicht genau, was ich will."
+
+**Die Reihenfolge zum Reinwachsen:**
+1. 🥇 **Woche 1:** Chain-of-Thought (Schritt 1) — bei jeder komplexen Frage
+2. 🥈 **Woche 2:** Delimiter + Constraints (Schritt 3 + 7) — bei längeren Prompts
+3. 🥉 **Woche 3:** Reverse Prompting (Schritt 5) — bei offenen Aufgaben
+4. 🏅 **Danach:** System Prompts + Few-Shot — wenn Sie wiederkehrende Aufgaben automatisieren
+
+---
+
 ## 🔬 Probieren Sie es selbst!
 
 ### Hands-on 1: Chain-of-Thought Vergleich
@@ -958,18 +987,27 @@ und 30.000 € in einem Aktienfonds, der im letzten Jahr 8,2% Rendite erzielt ha
 - Wo können Sie Fehler im Rechenweg erkennen?
 - Wie hilfreich ist der sichtbare Lösungsweg für Ihre Nachprüfung?
 
-### Hands-on 2: System Prompt gestalten (Modellvergleich)
+### Hands-on 2: System Prompt testen (Modellvergleich)
 
-**Aufgabe:** Erstellen Sie einen System Prompt für einen KI-Assistenten, der Volksbank-Mitarbeiter bei der täglichen E-Mail-Bearbeitung unterstützt. Testen Sie denselben System Prompt in **zwei verschiedenen Modellen** (z.B. ChatGPT + Claude).
+**Aufgabe:** Testen Sie den folgenden fertigen System Prompt in **zwei verschiedenen Modellen** (z.B. ChatGPT + Claude) und vergleichen Sie die Ergebnisse.
 
-**Anforderungen an den System Prompt:**
-- Rolle: E-Mail-Assistent für Bankberater
-- Ton: Professionell, freundlich
-- Kann: E-Mails zusammenfassen, Antworten vorschlagen, Dringlichkeit einschätzen
-- Darf nicht: Konkreten Rat geben, Kundendaten speichern, verbindliche Aussagen treffen
+**Schritt 1:** Kopieren Sie diesen System Prompt in beide Tools (bei ChatGPT unter „Custom Instructions" oder am Anfang eines neuen Chats, bei Claude in einem neuen Projekt unter „System Prompt"):
+
+```
+Du bist ein E-Mail-Assistent für Bankberater. 
+
+AUFGABE: Du hilfst beim Bearbeiten eingehender Kunden-E-Mails:
+Zusammenfassen, Dringlichkeit einschätzen, Antwort vorschlagen.
+
+REGELN:
+- Ton: Professionell und freundlich
+- KEINE konkreten Zusagen oder verbindlichen Aussagen
+- KEINE Anlage- oder Produktempfehlungen
 - Bei Unsicherheit: „Bitte Rücksprache mit Teamleitung" empfehlen
+- Antwortvorschlag immer als ENTWURF kennzeichnen
+```
 
-**Testfrage an beide Modelle (nach dem System Prompt):**
+**Schritt 2:** Stellen Sie beiden Modellen dieselbe Testfrage:
 ```
 Zusammenfassung und Antwortvorschlag für diese E-Mail:
 
@@ -983,6 +1021,7 @@ Mit freundlichen Grüßen, Heinrich Wagner"
 **Vergleichen Sie:**
 - Hält sich jedes Modell an die System-Prompt-Regeln?
 - Welches Modell gibt keine verbindlichen Aussagen?
+- Kennzeichnet es den Antwortvorschlag als Entwurf?
 - Wo würden Sie den System Prompt nachbessern?
 
 ### Hands-on 3: Die Prompt-Klinik — 3 kaputte Prompts reparieren
@@ -1043,5 +1082,4 @@ für unsere Kunden.
 | **Selbst-Check / Verifikation** | KI prüft ihre eigene Ausgabe anhand vorgegebener Kriterien, bevor sie das Ergebnis liefert |
 
 ---
-
 
