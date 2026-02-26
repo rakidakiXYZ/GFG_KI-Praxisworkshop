@@ -183,9 +183,24 @@ Der **Vocoder** (von „Voice Encoder") ist das Werkzeug, das aus dem Bild wiede
 
 Das Mel-Spektrogramm war ein wichtiger Zwischenschritt, aber der eigentliche Durchbruch kam mit einer anderen Idee: **Was, wenn wir Audio in Tokens verwandeln könnten — genau wie Text?**
 
-### Das Problem mit Spektrogrammen
+### Warum die alte Mel-Spektrogramm-Pipeline an ihre Grenzen stieß
 
-Spektrogramme funktionieren, aber sie haben einen Nachteil: Sie sind immer noch groß. Ein 10-Sekunden-Spektrogramm hat tausende Pixel. Und wenn wir ein Transformer-Modell (wie in Tutorial 00-01) verwenden wollen, brauchen wir etwas Kompakteres.
+Jahrelang war der Standard-Ansatz für Sprachsynthese eine Zwei-Stufen-Pipeline:
+
+```
+Text → [Tacotron / Acoustic Model] → Mel-Spektrogramm → [WaveNet / Vocoder] → Audio
+```
+
+Das funktionierte — aber mit gravierenden Einschränkungen:
+- **Viele Sprecherdaten nötig:** Um eine neue Stimme zu lernen, brauchte das System Stunden an Aufnahmen dieser Person. Voice Cloning mit 3 Sekunden? Unmöglich.
+- **Schlechte Generalisierung:** Das System konnte nur, was es explizit trainiert wurde. Neue Sprachen, Akzente oder Emotionen erforderten komplett neues Training.
+- **Kein gemeinsames Format:** Text-Modelle arbeiteten mit Tokens, Bild-Modelle mit Pixeln — aber Audio hatte kein Äquivalent. Es gab keine Möglichkeit, die Fortschritte aus der Text-KI-Welt auf Audio zu übertragen.
+
+Die Lösung: Audio musste in **Tokens** übersetzt werden — ein gemeinsames Format, das Transformer-Modelle direkt verarbeiten können. Genau das leisten neuronale Audio-Codecs.
+
+### Das Problem mit Spektrogrammen als Zwischenformat
+
+Spektrogramme waren ein guter erster Schritt, aber sie haben einen Nachteil: Sie sind immer noch groß. Ein 10-Sekunden-Spektrogramm hat tausende Pixel. Und wenn wir ein Transformer-Modell (wie in Tutorial 00-01) verwenden wollen, brauchen wir etwas Kompakteres.
 
 ### Der neuronale Audio-Codec: SoundStream und EnCodec
 
@@ -555,6 +570,47 @@ Das Modell generiert eine völlig neue Stimme, die nie einem echten Menschen geh
 
 ---
 
+## Was Audio-KI (noch) nicht kann — Limitationen für Ihren Arbeitsalltag
+
+Wie jede Technologie in dieser Tutorial-Reihe hat auch Audio-KI klare Grenzen. Und gerade für den Einsatz in einer Bank sind einige davon besonders relevant:
+
+### Text-to-Speech: Stolperfallen im Fachvokabular
+
+KI-Stimmen klingen heute natürlich — bis sie auf **Fachbegriffe** treffen. IBANs, BICs, Fondsnamen (z. B. „DWS Invest ESG Equity Income LC"), Paragraphen-Verweise oder gemischte Sprachen in einem Satz (deutsche Erklärung mit englischem Produktnamen) bringen TTS-Modelle regelmäßig zum Stolpern.
+
+**Typische Probleme:**
+- Buchstaben-Zahlen-Kombinationen falsch betont: „DE89 3704 0044 0532 0130 00" wird zu einem unverständlichen Zahlensalat
+- Abkürzungen nicht erkannt: „BaFin" wird als Wort gelesen statt als Akronym
+- **Halluzinierte Wörter:** In seltenen Fällen „erfindet" ein TTS-Modell Silben oder verschluckt Wörter — bei Kontoständen oder Vertragsbedingungen inakzeptabel
+- Fremdsprachige Eigennamen in deutschem Kontext: „BlackRock" mit deutschem Akzent
+
+**Praxis-Tipp:** Für kritische Anwendungen (Kontoinfos, Vertragstexte) immer mit **SSML-Markup** oder expliziten Ausspracheanweisungen arbeiten und automatisierte Qualitätschecks einbauen.
+
+### Voice Cloning: Sicherheitsrisiko Deepfake
+
+Die Fähigkeit, eine Stimme aus 3 Sekunden Audio zu klonen, ist faszinierend — und gefährlich. Für Banken bedeutet das:
+
+- **CEO Fraud 2.0:** Ein Betrüger klont die Stimme des Vorstandsvorsitzenden und ruft in der Buchhaltung an: „Überweisen Sie sofort 500.000€ an folgendes Konto." Solche Fälle sind bereits dokumentiert.
+- **Telefonische Legitimation:** Wenn Ihre Bank Stimmerkennung als Authentifizierungsfaktor nutzt, ist diese durch Voice Cloning angreifbar.
+- **Gegenmittel:** Banken investieren in **Audio-Deepfake-Erkennung** — KI, die KI-generierte Stimmen identifiziert. Aber es ist ein Wettrüsten.
+
+### Musikgenerierung: Urheberrecht und „Kreativität"
+
+- **Urheberrechtliche Grauzone:** KI-Modelle wurden auf urheberrechtlich geschützter Musik trainiert. Suno und Udio stehen deshalb in Rechtsstreitigkeiten mit Major Labels (Sony, Universal, Warner). Die rechtliche Lage für kommerzielle Nutzung ist Stand 2026 **ungeklärt**.
+- **Keine echte Kreativität:** Die Modelle remixen gelernte Muster. Sie erfinden keine neuen Genres und überraschen selten mit unerwarteten musikalischen Ideen. Für Hintergrundmusik reicht es — für Kunst (noch) nicht.
+- **Qualitätsschwankungen:** Manchmal produziert dasselbe Prompt bei Suno einen beeindruckenden Track, manchmal unbrauchbaren Output. Konsistenz ist noch eine Schwäche.
+
+### Allgemeine Grenzen
+
+- **Dialekte und Akzente:** Deutsche Dialekte (Sächsisch, Bayerisch, Schwäbisch) werden von den meisten Modellen nicht zuverlässig produziert. Für regionale Banken ein Problem.
+- **Hintergrundgeräusche:** Modelle können Ambient-Sound erzeugen, aber die Trennung von Stimme und Hintergrund ist bei der *Erkennung* (Speech-to-Text) noch fehleranfällig — relevant für Telefon-Transkription in lauten Umgebungen.
+- **Echtzeit-Latenz:** Trotz großer Fortschritte hat KI-TTS noch spürbare Verzögerungen (~300ms bei besten Modellen). In natürlichen Gesprächen fällt das auf.
+- **Datenschutz:** Voice Cloning erfordert Audiodaten von Personen. Nach DSGVO ist das Speichern und Verarbeiten von Stimmproben **personenbezogene Datenverarbeitung** — mit allen regulatorischen Konsequenzen.
+
+> **Bank-Analogie:** Stellen Sie sich vor, Ihre Bank führt einen KI-Telefonservice ein. Der Kunde ruft an, hört eine perfekte Stimme — aber die IBAN wird falsch vorgelesen. Oder schlimmer: Ein Betrüger ruft die Hotline an, klingt exakt wie der Kontoinhaber und autorisiert eine Überweisung. Die Technologie ist mächtig, aber ohne Sicherheitsmaßnahmen (Deepfake-Erkennung, Multi-Faktor-Authentifizierung, SSML-Validierung) kann sie mehr schaden als nutzen.
+
+---
+
 ## Die aktuelle Modell-Landschaft (Stand: Februar 2026)
 
 ### Text-to-Speech
@@ -578,6 +634,16 @@ Das Modell generiert eine völlig neue Stimme, die nie einem echten Menschen geh
 | **Stable Audio 2.0** | Stability AI | 3 Min. Tracks, Stems-Separation | Ab $12/Monat |
 | **YuE** | Open Source | Erstes lokales Suno-Äquivalent mit Vocals | Kostenlos (8GB VRAM) |
 | **Soundverse** | Soundverse | Ethische KI-Musik, Lizenzierung inklusive | Ab $8/Monat |
+
+**Kosten-Vergleich mit menschlicher Alternative:**
+
+| Leistung | KI-generiert | Menschlich produziert |
+|----------|-------------|----------------------|
+| 1 Song (3 Min., Hintergrundmusik) | ~$0,10–0,50 (1–5 Suno Credits) | $200–2.000 (Komponist + Studio) |
+| TTS: 10 Min. Sprachaufnahme | ~$0,10 (gpt-4o-mini-tts) | $50–300 (professioneller Sprecher) |
+| Warteschleifenmusik (10 Tracks) | ~$5 (Suno Pro) | $2.000–10.000 (Musikproduktion) |
+
+**Fazit:** Für Prototyping, interne Nutzung und Hintergrundmusik ist KI um Faktor 100–1.000 günstiger. Für kundenorientierte, hochwertige Produktion bleibt menschliche Qualitätskontrolle (noch) unverzichtbar.
 
 ### Text-to-Sound / Audio in Video
 
@@ -651,6 +717,13 @@ User:   "Ihr aktueller Kontostand beträgt 15.342 Euro und
 4. **Vergleichen Sie:** Ändern Sie „Jazz-Lounge" zu „8-Bit Chiptune" bei sonst gleichem Prompt
 5. Sie werden hören, wie stark das Genre-Keyword den gesamten Output steuert — genau wie wir es in Schritt 5 erklärt haben
 
+### Experiment 3: Modellvergleich TTS (5 Minuten)
+
+1. Gehen Sie zu **openai.fm** und generieren Sie: *„Ihr Kontostand beträgt fünfzehntausenddreihundertzweiundvierzig Euro."* mit der Anweisung „Sprich wie ein professioneller Bankberater"
+2. Gehen Sie zu **elevenlabs.io** (kostenloser Account) und generieren Sie denselben Text mit einer ähnlichen Stimme
+3. **Vergleichen Sie:** Welches Modell betont die Zahl natürlicher? Welches klingt „menschlicher"? Wo hören Sie den Unterschied zwischen den Architekturen?
+4. Bonus: Probieren Sie denselben Text mit einer IBAN: „DE89 3704 0044 0532 0130 00" — wo scheitern beide Modelle?
+
 ---
 
 ## Das Wichtigste auf einen Blick
@@ -685,6 +758,55 @@ User:   "Ihr aktueller Kontostand beträgt 15.342 Euro und
 
 ---
 
+## Die komplette Pipeline auf einen Blick
+
+Zum Abschluss: So sieht der gesamte Weg von einem Text-Prompt zu hörbarer Musik oder Sprache aus — alle Schritte dieses Tutorials in einem Diagramm:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    TEXT-PROMPT                                    │
+│   "Ein melancholisches Cello-Solo im Stil von Bach"             │
+└───────────────────────┬─────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  1. TEXT-ENCODER  (T5 / CLAP)                                    │
+│     Verwandelt Text in numerische Repräsentation (Embedding)     │
+│     → CLAP: Wie CLIP, aber für Audio-Text-Paare (Tutorial 00-03)│
+└───────────────────────┬─────────────────────────────────────────┘
+                        │
+              ┌─────────┴──────────┐
+              ▼                    ▼
+┌──────────────────────┐ ┌──────────────────────┐
+│  PFAD A: TRANSFORMER │ │  PFAD B: DIFFUSION   │
+│  (z.B. MusicGen)     │ │  (z.B. Stable Audio) │
+│                      │ │                      │
+│  Generiert Audio-    │ │  Entrauscht Mel-     │
+│  Tokens sequenziell  │ │  Spektrogramm        │
+│  (nächstes Token     │ │  schrittweise        │
+│   vorhersagen)       │ │  (Rauschen → Bild)   │
+└──────────┬───────────┘ └──────────┬───────────┘
+           │                        │
+           ▼                        ▼
+┌──────────────────────┐ ┌──────────────────────┐
+│  AUDIO-CODEC DECODER │ │  VOCODER (HiFi-GAN)  │
+│  (EnCodec/           │ │                      │
+│   SoundStream)       │ │  Spektrogramm →      │
+│  Tokens → Wellenform │ │  Wellenform          │
+└──────────┬───────────┘ └──────────┬───────────┘
+           │                        │
+           └────────┬───────────────┘
+                    ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    HÖRBARES AUDIO  🔊                             │
+│   WAV/MP3-Datei, die Sie abspielen können                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Das Schöne an dieser Architektur: Sie steht auf den Schultern aller bisherigen Tutorials. Next-Token-Prediction aus der Sprachmodell-Welt (00-01), Diffusion aus der Bildgenerierung (00-02), Cross-Modal-Conditioning aus der multimodalen KI (00-03), und temporale Konsistenz aus der Videogenerierung (00-04). **Audio-KI zu bauen ist im Grunde ein Lehrgang durch die gesamte moderne KI.**
+
+---
+
 ## Glossar
 
 | Begriff | Erklärung |
@@ -707,6 +829,9 @@ User:   "Ihr aktueller Kontostand beträgt 15.342 Euro und
 | **Text-Conditioning** | Technik, bei der ein Textprompt den Generierungsprozess steuert, damit das Ergebnis zur Beschreibung passt |
 | **Cross-Attention** | Mechanismus, mit dem ein Modell Informationen aus einer anderen Modalität (z. B. Text) in seinen Generierungsprozess einbezieht |
 | **Multi-Skalen-Struktur** | Die Tatsache, dass Musik gleichzeitig Muster auf Millisekunden- bis Minuten-Ebene hat |
+| **HiFi-GAN** | Ein schneller, qualitativ hochwertiger Vocoder — wandelt Mel-Spektrogramme in Wellenformen um. „HiFi" = High Fidelity, „GAN" = Generative Adversarial Network |
+| **Riffusion** | Kreatives Projekt, das Stable Diffusion (Bildgenerator) direkt auf Spektrogramme anwendet — beweist, dass Audio-Bilder mit Bild-KI generiert werden können |
+| **SSML** | Speech Synthesis Markup Language — XML-basierte Auszeichnungssprache, um TTS-Systemen Ausspracheanweisungen zu geben (Pausen, Betonung, Aussprachevarianten) |
 | **SFX (Sound Effects)** | Klangeffekte (Türknarren, Regen, Explosionen) — eigene Disziplin der Audio-KI |
 
 ---
@@ -719,3 +844,4 @@ User:   "Ihr aktueller Kontostand beträgt 15.342 Euro und
 - arXiv: *Towards Audio Language Modeling — An Overview* (2024) — Akademischer Survey über Audio Language Models
 - arXiv: *A Review on Score-based Generative Models for Audio Applications* (Juni 2025) — Aktueller Survey über Diffusion in Audio
 
+---
