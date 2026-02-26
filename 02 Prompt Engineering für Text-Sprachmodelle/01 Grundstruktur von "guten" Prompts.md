@@ -6,7 +6,7 @@
 
 ## Warum dieses Tutorial?
 
-In Kapitel 00 haben Sie gelernt, wie KI funktioniert: wie LLMs Token vorhersagen (Tutorial 00-01), wie Diffusion Bilder erzeugt (Tutorial 00-02), wie multimodale Modelle verschiedene Sinne verbinden (Tutorial 00-03) und wie KI mit der Außenwelt kommuniziert (Tutorial 00-07). Sie wissen jetzt, was unter der Haube passiert.
+In Kapitel Grundlagen LLMs haben Sie gelernt, wie KI funktioniert: wie LLMs Token vorhersagen (Tutorial 01), wie Diffusion Bilder erzeugt (Tutorial 02), wie multimodale Modelle verschiedene Sinne verbinden (Tutorial 03) und wie KI mit der Außenwelt kommuniziert (Tutorial 07). Sie wissen jetzt, was unter der Haube passiert.
 
 Aber Wissen über den Motor macht Sie noch nicht zum guten Fahrer.
 
@@ -55,7 +55,7 @@ Der zweite Prompt definiert: **Wer** (Erstkäufer), **Was** (3 Faktoren), **Wie*
 
 ### Warum das technisch funktioniert
 
-Erinnern Sie sich an die **Attention-Mechanismen** aus Tutorial 00-01? Das LLM gewichtet bei jeder Antwort, welche Teile Ihres Prompts besonders relevant sind. Ein präziser Prompt aktiviert die richtigen „Wissens-Bereiche" im Modell. „Baufinanzierung" allein aktiviert alles von Hypothekenrecht bis zur Geschichte des Bausparvereins. „Baufinanzierung für Erstkäufer, 3 Faktoren, einfache Sprache" fokussiert das Modell wie eine Lupe.
+Erinnern Sie sich an die **Attention-Mechanismen** aus Tutorial 01? Das LLM gewichtet bei jeder Antwort, welche Teile Ihres Prompts besonders relevant sind. Ein präziser Prompt aktiviert die richtigen „Wissens-Bereiche" im Modell. „Baufinanzierung" allein aktiviert alles von Hypothekenrecht bis zur Geschichte des Bausparvereins. „Baufinanzierung für Erstkäufer, 3 Faktoren, einfache Sprache" fokussiert das Modell wie eine Lupe.
 
 > **Faustregel:** Was Sie nicht sagen, überlassen Sie dem Zufall. Was Sie präzise sagen, kontrollieren Sie.
 
@@ -192,7 +192,7 @@ Format:
 
 **Was es ist:** Sie sagen der KI, *wer* sie sein soll. Das verändert Perspektive, Wortwahl, Tiefe und Fokus der Antwort.
 
-**Warum es funktioniert:** Erinnern Sie sich an die Attention-Gewichte aus Tutorial 00-01? Wenn Sie der KI sagen „Du bist Kreditanalystin", aktiviert sie andere Wissens-Bereiche als bei „Du bist Marketingexpertin". Dieselbe Frage, komplett andere Antwort.
+**Warum es funktioniert:** Erinnern Sie sich an die Attention-Gewichte aus Tutorial 01? Wenn Sie der KI sagen „Du bist Kreditanalystin", aktiviert sie andere Wissens-Bereiche als bei „Du bist Marketingexpertin". Dieselbe Frage, komplett andere Antwort.
 
 ### Gute vs. schlechte Rollen
 
