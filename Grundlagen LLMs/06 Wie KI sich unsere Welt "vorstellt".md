@@ -653,12 +653,14 @@ Die komplette World-Model-Pipeline auf einen Blick:
 
 Das Compounding-Error-Problem ist ungelöst. Selbst Genie 3, das fortschrittlichste System, bleibt nur **minutenlang** konsistent. Für manche Anwendungen reicht das — für andere nicht:
 
-| Anforderung | Benötigte Konsistenz | Status 2026 |
-|-------------|---------------------|-------------|
+| Anforderung | Benötigte Konsistenz | World-Model-Simulation allein (2026) |
+|-------------|---------------------|--------------------------------------|
 | Roboter-Greifbewegung (5 Sek.) | Sekunden | ✅ Gelöst |
 | Spielelevel erkunden (2 Min.) | Minuten | ⚠️ Grenzwertig (Genie 3) |
 | Autonomes Fahren in der Stadt (30 Min.) | Halbe Stunde | ❌ Nicht ausreichend |
 | Architekturbegehung eines Gebäudes (10 Min.) | 10+ Minuten | ❌ Driftet ab |
+
+> **Wichtiger Kontext:** Autonomes Fahren existiert bereits — Waymo fährt seit 2024 in mehreren US-Städten ohne Fahrer. Aber Waymo nutzt **kein reines World Model**, sondern einen Mix aus LiDAR-Sensoren, hochauflösenden Karten, regelbasierter Logik und Machine-Learning-Komponenten. World Models werden dort als **ein Baustein** fürs Training eingesetzt (Szenarien simulieren), nicht als alleiniges Fahrsystem. Die Tabelle oben zeigt daher nicht „Kann ein Auto autonom fahren?", sondern „Kann ein World Model **allein** eine 30-minütige Stadtfahrt konsistent simulieren?" — und das kann es noch nicht.
 
 ### 🔴 Physikalische Exaktheit
 
@@ -803,4 +805,3 @@ Ein World Model, das Straßenverkehr gelernt hat, kann nicht automatisch ein Lag
 - World Labs (2025). „Marble: Persistent 3D Environments from Multimodal Prompts." worldlabs.ai.
 - Runway (2025). „GWM-1: General World Model." runway.com.
 - Introl Blog (2026). „World Models Race 2026: How LeCun, DeepMind, and World Labs Are Redefining the Path to AGI." introl.com.
-
