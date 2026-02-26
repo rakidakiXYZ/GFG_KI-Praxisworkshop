@@ -179,7 +179,37 @@ Frame 14: 🎩 ← → ⚽                Frame 14: 🎩 ← → ⚽
 
 Durch das Hinzufügen temporaler Layer sagen wir dem Modell explizit: **„Achte darauf, was Objekte über die Zeit tun — nicht nur in einem einzelnen Schnappschuss."**
 
-Meta AIs **Make-A-Video**-System (2022) hat genau diesen Ansatz bewiesen: Sie nahmen einen erstklassigen Bildgenerator und fügten temporale Konvolutions- und Attention-Module ein, um ihm ein Gefühl für Bewegung zu geben. Kuaishous Kling setzt auf eine **Diffusion-Transformer-Architektur**, die räumliche und temporale Attention in einem einzigen Transformer-Block vereint — statt sie als getrennte Module aufzustecken.
+Meta AIs **Make-A-Video**-System (2022) hat genau diesen Ansatz bewiesen: Sie nahmen einen erstklassigen Bildgenerator und fügten temporale Konvolutions- und Attention-Module ein, um ihm ein Gefühl für Bewegung zu geben.
+
+#### U-Net vs. Diffusion-Transformer (DiT): Zwei Architekturen, ein Ziel
+
+In Tutorial 00-02 haben Sie die **U-Net-Architektur** kennengelernt — das Arbeitspferd hinter Stable Diffusion und DALL·E 2. Das U-Net hat eine charakteristische Form: Es komprimiert das Bild Schicht für Schicht (wie einen Trichter), verarbeitet es in der Mitte, und baut es dann wieder auf. Temporale Layer werden als **Zusatzmodule aufgesteckt** — wie Anbauteile an eine bestehende Maschine.
+
+Die neuere Generation — **Sora, Kling und Wan 2.1** — verwendet stattdessen einen **Diffusion-Transformer (DiT)**. Hier wird der Transformer aus Tutorial 00-01 direkt als Backbone des gesamten Diffusion-Modells eingesetzt. Statt Anbauteile aufzustecken, ist die temporale Attention **von Anfang an eingebaut** — räumliche und zeitliche Verarbeitung verschmelzen in einem einzigen Transformer-Block.
+
+```
+U-Net + temporale Module (Make-A-Video, 2022):
+┌──────────────┐
+│   U-Net      │ ← vortrainiertes Bildmodell
+│  (räumlich)  │
+├──────────────┤
+│ + Temporal   │ ← aufgesteckte Zusatzmodule
+│   Attention  │
+└──────────────┘
+
+Diffusion-Transformer / DiT (Sora, Kling, Wan, 2024+):
+┌──────────────────────────┐
+│   Transformer-Block      │
+│  ┌────────┬───────────┐  │
+│  │Spatial │ Temporal   │  │ ← beides nativ integriert
+│  │Attn.   │ Attn.      │  │
+│  └────────┴───────────┘  │
+└──────────────────────────┘
+```
+
+**Warum ist DiT besser?** Transformer skalieren eleganter als U-Nets — je mehr Rechenleistung und Daten, desto besser werden sie. Das ist derselbe Effekt, der LLMs so mächtig gemacht hat (Tutorial 00-01). Außerdem können DiTs die Raumzeit-Patches aus Schritt 3 direkt als Tokens verarbeiten — eine natürliche Passung.
+
+> **Bank-Analogie:** Stellen Sie sich zwei Organisationsmodelle vor. Beim U-Net-Ansatz haben Sie eine Abteilung für Einzeldokumente und eine *separate* Abteilung für Fallverläufe — die müssen ständig kommunizieren. Beim DiT-Ansatz sitzt beides in **einem Team**, das jedes Dokument sofort im Kontext des Gesamtfalls sieht. Effizienter, weniger Abstimmungsverluste.
 
 > **Daumenkino-Analogie:** Unser Künstler lernt jetzt nicht nur, was auf jeder Seite steht, sondern auch die **Übergänge** zwischen den Seiten. Er hat ein Auge für Kontinuität entwickelt — wie ein guter Filmcutter, der auf Anschlussfehler achtet.
 
@@ -450,3 +480,5 @@ Sie werden wahrscheinlich mindestens einen dieser Fehler sehen — und jetzt wis
 
 ---
 
+
+*Dieses Tutorial basiert auf dem Artikel „Building a Video Generation Model From Scratch" von Micheal Lanham (Feb 2026) sowie aktuellen Informationen zu Sora 2, Veo 3.1, Kling, Wan 2.1 und Seedance 2.0 (Stand: Februar 2026). Aufbereitet für den Prompt Professor.*
