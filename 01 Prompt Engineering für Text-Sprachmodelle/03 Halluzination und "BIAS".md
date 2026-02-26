@@ -881,24 +881,3 @@ REGELN:
 
 ---
 
-## Wie geht es weiter?
-
-In **Tutorial 01-04** lernen Sie fortgeschrittene Prompt-Techniken: Chain-of-Thought-Prompting, System Prompts, Delimiter und wie Sie das Modell dazu bringen, seine eigene Antwort vor der Ausgabe zu überdenken.
-
----
-
-⬅️ [Tutorial 01-02: KI-Ausgaben steuern](01-02-ki-ausgaben-steuern.md)
-➡️ Tutorial 01-04 *(kommt als nächstes)*
-
----
-
-**Quellen:**
-- Workshop-Material: Halluzinationen & Bias bei LLMs vermeiden (2026)
-- Workshop-Material: Gender-Swap-Technik zur Bias-Erkennung (2026)
-- Vectara Hallucination Leaderboard (Dezember 2025)
-- HalluLens: LLM Hallucination Benchmark, Bang et al. (ACL 2025)
-- AllAboutAI: AI Hallucination Report 2026
-- MEGA-RAG: Retrieval-Augmented Generation for Mitigating Hallucinations, Frontiers in Public Health (2025)
-- EY: AI Discrimination and Bias in Financial Services (2025)
-- BAI Banking Strategies: Tackling AI Bias in Banking (2025)
-- PMC: Hallucination or Confabulation? Neuroanatomy as Metaphor in LLMs (2023)
