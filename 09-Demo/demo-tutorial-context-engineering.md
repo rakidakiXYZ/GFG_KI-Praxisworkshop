@@ -16,7 +16,7 @@ Dieses Tutorial zeigt Dir die 5 Ebenen des Context Engineering und wie Du sie in
 
 ## Die 5 Ebenen auf einen Blick
 
-![Die 5 Ebenen des Context Engineering](./images/demo-01-context-engineering-5-ebenen.png)
+![Die 5 Ebenen des Context Engineering](./img/demo-01-context-engineering-5-ebenen.png)
 
 Das Diagramm zeigt die fünf Ebenen, die zusammen einen vollständigen Kontext ergeben. Jede Ebene beantwortet eine andere Frage — und je mehr Ebenen Du ausfüllst, desto besser wird das Ergebnis.
 
@@ -132,7 +132,7 @@ Kontext der Veröffentlichung:
 
 ## Vom Einzelprompt zum vollständigen Kontext
 
-![Vom schwachen Prompt zum vollständigen Kontext](./images/demo-02-prompt-vergleich-vorher-nachher.png)
+![Vom schwachen Prompt zum vollständigen Kontext](./img/demo-02-prompt-vergleich-vorher-nachher.png)
 
 Das Diagramm oben zeigt den Unterschied: Links ein typischer Einzeiler-Prompt, rechts derselbe Auftrag mit allen 5 Kontext-Ebenen. Der Aufwand für den vollständigen Prompt beträgt vielleicht 3 Minuten mehr — aber das Ergebnis spart Dir 30 Minuten Nachbearbeitung.
 
